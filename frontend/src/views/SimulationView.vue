@@ -148,23 +148,23 @@ const handleGoBack = () => {
 const handleNextStep = (params = {}) => {
   addLog('Enter Step 3: Start Simulation')
   
-  //if (params.maxRounds) {
+  if (params.maxRounds) {
     addLog(`Custom simulation rounds: ${params.maxRounds}  rounds`)
   } else {
     addLog('Using autoConfigureSimulation rounds')
   }
   
-  //const routeParams = {
+  const routeParams = {
     name: 'SimulationRun',
     params: { simulationId: currentSimulationId.value }
   }
   
-  //query ParametersPass
+  // Pass query parameters
   if (params.maxRounds) {
     routeParams.query = { maxRounds: params.maxRounds }
   }
   
-  //Step 3 Page
+  // Navigate to Step 3 page
   router.push(routeParams)
 }
 
@@ -172,7 +172,7 @@ const handleNextStep = (params = {}) => {
 
 /**
  * Check and close running simulation
- * When user navigates from Step 3 Backto Step 2 ，Default: user wants to exit simulation
+ * When user navigates from Step 3 Back to Step 2 , default: user wants to exit simulation
  */
 const checkAndStopRunningSimulation = async () => {
   if (!currentSimulationId.value) return
