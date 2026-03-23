@@ -90,7 +90,7 @@ const router = useRouter()
 const viewMode = ref('split') // graph | split | workbench
 
 // Step State
-const currentStep = ref(1: Graph Build, 2: Environment Setup, 3: Run Simulation, 4: Generate Report, 5: Deep Interaction
+const currentStep = ref(1) // 1: Graph Build, 2: Environment Setup, 3: Run Simulation, 4: Generate Report, 5: Deep Interaction
 const stepNames = ['Graph Build', 'Environment Setup', 'Run Simulation', 'Generate Report', 'Deep Interaction']
 
 // Data State
