@@ -1,5 +1,132 @@
 <template>
   <div class="home-container">
+    <nav class="navbar">
+      <div class="nav-brand">
+        <span class="brand-icon">&#9672;</span>
+        PREDICT
+      </div>
+      <div class="nav-links">
+        <span class="nav-tagline">by FounderConsole</span>
+      </div>
+    </nav>
+    <div class="main-content">
+      <section class="hero-section">
+        <div class="hero-left">
+          <div class="tag-row">
+            <span class="orange-tag">Swarm Intelligence Prediction Engine</span>
+            <span class="version-text">/ v0.1-preview</span>
+          </div>
+          <h1 class="main-title">
+            See What Happens<br>
+            <span class="gradient-text">Before It Happens</span>
+          </h1>
+          <p class="subtitle">
+            Upload any report, article, or dataset. Our AI-powered swarm agents
+            simulate thousands of possible futures - so you can make decisions
+            with confidence, not guesswork.
+          </p>
+          <div class="feature-pills">
+            <span class="pill">Multi-Agent Simulation</span>
+            <span class="pill">Real-Time Predictions</span>
+            <span class="pill">Visual Reports</span>
+          </div>
+        </div>
+        <div class="hero-right">
+          <div class="upload-console">
+            <div class="console-header">
+              <span class="console-dot red"></span>
+              <span class="console-dot yellow"></span>
+              <span class="console-dot green"></span>
+              <span class="console-title">New Prediction</span>
+            </div>
+            <div class="console-body">
+              <div class="upload-zone" @click="triggerFileInput" @dragover.prevent @drop.prevent="handleDrop">
+                <input type="file" ref="fileInput" @change="handleFileSelect" style="display:none"
+                  accept=".txt,.pdf,.doc,.docx,.csv,.json,.xlsx,.xls,.md">
+                <div class="upload-icon">&#8682;</div>
+                <p class="upload-text">Drop your file here or click to browse</p>
+                <p class="upload-hint">Supports PDF, TXT, DOC, CSV, JSON, Excel, Markdown</p>
+              </div>
+              <div v-if="selectedFile" class="file-info">
+                <span class="file-name">{{ selectedFile.name }}</span>
+                <span class="file-size">{{ formatFileSize(selectedFile.size) }}</span>
+              </div>
+              <div class="prompt-section">
+                <label class="prompt-label">What do you want to predict?</label>
+                <textarea v-model="userPrompt" class="prompt-input"
+                  placeholder="e.g. How will this policy affect public sentiment over the next 6 months?"
+                  rows="3"></textarea>
+              </div>
+              <button class="start-btn" @click="startPrediction" :disabled="!selectedFile || !userPrompt">
+                <span class="btn-icon">&#9654;</span> Start Prediction
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="how-section">
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-subtitle">Five simple steps from upload to actionable insight</p>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-number">01</div>
+            <h3>Upload Your Content</h3>
+            <p>Drop in any document - a report, news article, dataset, or research paper.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">02</div>
+            <h3>Build the Knowledge Graph</h3>
+            <p>Our AI extracts key entities, relationships, and context from your content automatically.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">03</div>
+            <h3>Configure the Simulation</h3>
+            <p>Set the environment - choose agent count, rounds, and what you want to explore.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">04</div>
+            <h3>Run the Prediction</h3>
+            <p>Thousands of AI agents debate, analyze, and simulate outcomes in real time.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">05</div>
+            <h3>Get Your Report</h3>
+            <p>Receive a visual, interactive report with predictions, confidence scores, and key insights.</p>
+          </div>
+        </div>
+      </section>
+      <section class="usecases-section">
+        <h2 class="section-title">What Can You Predict?</h2>
+        <div class="usecases-grid">
+          <div class="usecase-card">
+            <div class="usecase-icon">&#128200;</div>
+            <h3>Market Trends</h3>
+            <p>Forecast how markets, industries, or sectors will shift based on current signals and data.</p>
+          </div>
+          <div class="usecase-card">
+            <div class="usecase-icon">&#128483;</div>
+            <h3>Public Sentiment</h3>
+            <p>Predict how people will react to announcements, policies, or product launches.</p>
+          </div>
+          <div class="usecase-card">
+            <div class="usecase-icon">&#128240;</div>
+            <h3>News Impact</h3>
+            <p>Understand how breaking news or events will ripple through industries and communities.</p>
+          </div>
+          <div class="usecase-card">
+            <div class="usecase-icon">&#9878;</div>
+            <h3>Strategic Decisions</h3>
+            <p>Simulate the outcomes of business decisions before you commit to them.</p>
+          </div>
+        </div>
+      </section>
+      <footer class="footer">
+        <p>Powered by <strong>FounderConsole</strong> - AI Decision Intelligence for Founders</p>
+      </footer>
+    </div>
+  </div>
+</template><template>
+  <div class="home-container">
     <!-- 顶部导航栏 -->
     <nav class="navbar">
       <div class="nav-brand">MIROFISH</div>
