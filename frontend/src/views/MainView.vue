@@ -48,7 +48,7 @@
 
       <!-- Right Panel: Step Components -->
       <div class="panel-wrapper right" :style="rightPanelStyle">
-        <!-- Step 1: 图谱构建 -->
+        <!-- Step 1: Graph Building -->
         <Step1GraphBuild 
           v-if="currentStep === 1"
           :currentPhase="currentPhase"
@@ -59,7 +59,7 @@
           :systemLogs="systemLogs"
           @next-step="handleNextStep"
         />
-        <!-- Step 2: 环境搭建 -->
+        <!-- Step 2: Environment Setup -->
         <Step2EnvSetup
           v-else-if="currentStep === 2"
           :projectData="projectData"
@@ -159,11 +159,11 @@ const toggleMaximize = (target) => {
 const handleNextStep = (params = {}) => {
   if (currentStep.value < 5) {
     currentStep.value++
-    addLog(`进入 Step ${currentStep.value}: ${stepNames[currentStep.value - 1]}`)
+    addLog(`Entering Step ${currentStep.value}: ${stepNames[currentStep.value - 1]}`)
     
-    // 如果是从 Step 2 进入 Step 3，记录模拟轮数配置
+    // If entering Step 3 from Step 2, log simulation round configuration
     if (currentStep.value === 3 && params.maxRounds) {
-      addLog(`自定义模拟轮数: ${params.maxRounds} 轮`)
+      addLog(`Custom simulation rounds: ${params.maxRounds} rounds`)
     }
   }
 }
@@ -171,7 +171,7 @@ const handleNextStep = (params = {}) => {
 const handleGoBack = () => {
   if (currentStep.value > 1) {
     currentStep.value--
-    addLog(`返回 Step ${currentStep.value}: ${stepNames[currentStep.value - 1]}`)
+    addLog(`Returning to Step ${currentStep.value}: ${stepNames[currentStep.value - 1]}`)
   }
 }
 
