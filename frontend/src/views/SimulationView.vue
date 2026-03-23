@@ -178,12 +178,12 @@ const checkAndStopRunningSimulation = async () => {
   if (!currentSimulationId.value) return
   
   try {
-    //const envStatusRes = await getEnvStatus({ simulation_id: currentSimulationId.value })
+    const envStatusRes = await getEnvStatus({ simulation_id: currentSimulationId.value })
     
     if (envStatusRes.success && envStatusRes.data?.env_alive) {
       addLog('toSimulationEnvironmentis running，is closing...')
       
-      //try {
+      try {
         const closeRes = await closeSimulationEnv({ 
           simulation_id: currentSimulationId.value,
           timeout: 10  // 10
@@ -193,21 +193,21 @@ const checkAndStopRunningSimulation = async () => {
           addLog('✓ SimulationEnvironmenthas been closed')
         } else {
           addLog(`SimulationEnvironmentFailed: ${closeRes.error || 'UnknownError'}`)
-          //await forceStopSimulation()
+          await forceStopSimulation()
         }
       } catch (closeErr) {
         addLog(`SimulationEnvironmentexception: ${closeErr.message}`)
-        //await forceStopSimulation()
+        await forceStopSimulation()
       }
     } else {
-      //const simRes = await getSimulation(currentSimulationId.value)
+      const simRes = await getSimulation(currentSimulationId.value)
       if (simRes.success && simRes.data?.status === 'running') {
         addLog('toSimulationStatusis running，is stopping...')
         await forceStopSimulation()
       }
     }
   } catch (err) {
-    //console.warn('SimulationStatusFailed:', err)
+    console.warn('SimulationStatusFailed:', err)
   }
 }
 
