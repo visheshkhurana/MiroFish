@@ -80,7 +80,7 @@
 <script>
 import { useRouter } from 'vue-router'
 import { ref } from 'vue'
-import { uploadFile } from '../api/index'
+import { setPendingUpload } from '../store/pendingUpload'
 export default {
   name: 'Home',
   setup() {
@@ -96,7 +96,8 @@ export default {
     const startPrediction = () => {
       if (!selectedFile.value || !userPrompt.value) return
       isUploading.value = true
-      uploadFile(selectedFile.value, userPrompt.value).then(response => {
+      setPendingUpload([selectedFile.value], userPrompt.value)
+      router.push({ name: 'Process', params: { projectId: 'new' } }).then(response => {
         if (response && response.project_id) router.push({ name: 'simulation', params: { projectId: response.project_id } })
       }).catch(error => { console.error('Upload failed:', error); alert('Upload failed. Please try again.') }).finally(() => { isUploading.value = false })
     }
