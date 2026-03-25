@@ -1,6 +1,6 @@
 """
-LLM
-OpenAI
+LLM客户端封装
+统一使用OpenAI格式调用
 """
 
 import json
@@ -14,28 +14,9 @@ from ..utils.logger import get_logger
 
 logger = get_logger('mirofish.llm_client')
 
-# Force all LLM outputs to be in English
-ENGLISH_INSTRUCTION = "IMPORTANT: You MUST respond entirely in English. Do NOT use Chinese or any other language. All output, including analysis, reports, quotes, social media posts, comments, and any generated text must be in English only."
-
-def _enforce_english(messages):
-    """Prepend English instruction to the system message in messages list."""
-    if not messages:
-        return messages
-    new_messages = list(messages)
-    for i, msg in enumerate(new_messages):
-        if msg.get("role") == "system":
-            new_messages[i] = dict(msg)
-            new_messages[i]["content"] = ENGLISH_INSTRUCTION + "\n\n" + msg["content"]
-            return new_messages
-    # If no system message, prepend one
-    new_messages.insert(0, {"role": "system", "content": ENGLISH_INSTRUCTION})
-    return new_messages
-
-
-
 
 class LLMClient:
-    """LLM"""
+    """LLM客户端"""
 
     def __init__(
         self,
@@ -48,7 +29,7 @@ class LLMClient:
         self.model = model or Config.LLM_MODEL_NAME
 
         if not self.api_key:
-            raise ValueError("LLM_API_KEY ")
+            raise ValueError("LLM_API_KEY 未配置")
 
         self.client = OpenAI(
             api_key=self.api_key,
@@ -65,25 +46,25 @@ class LLMClient:
         initial_delay: float = 2.0
     ) -> str:
         """
-        LLM
+        带重试逻辑的LLM调用
 
-        429 RateLimitError。
-        APIretry-after，。
+        对429 RateLimitError使用指数退避重试。
+        如果API返回了retry-after头，优先使用该值。
 
         Args:
-            messages: message list
-            temperature: temperature parameter
-            max_tokens: token
-            response_format: 
-            max_retries: 
-            initial_delay: （）
+            messages: 消息列表
+            temperature: 温度参数
+            max_tokens: 最大token数
+            response_format: 响应格式
+            max_retries: 最大重试次数
+            initial_delay: 初始重试延迟（秒）
 
         Returns:
-            LLM
+            LLM响应内容字符串
         """
         kwargs = {
             "model": self.model,
-            "messages": _enforce_english(messages),
+            "messages": messages,
             "temperature": temperature,
             "max_tokens": max_tokens,
         }
@@ -98,13 +79,13 @@ class LLMClient:
             try:
                 response = self.client.chat.completions.create(**kwargs)
                 content = response.choices[0].message.content
-                #  (MiniMax M2.5) content<think>，
+                # 部分模型 (如MiniMax M2.5) 会在content中包含<think>思考内容，需要移除
                 content = re.sub(r'<think>[\s\S]*?</think>', '', content).strip()
                 return content
             except RateLimitError as e:
                 last_exception = e
                 if attempt < max_retries:
-                    #
+                    # 尝试从错误信息中解析建议等待时间
                     wait_time = delay
                     error_msg = str(e)
                     try:
@@ -119,13 +100,13 @@ class LLMClient:
                         f"waiting {wait_time:.1f}s before retry... Error: {error_msg}"
                     )
                     time.sleep(wait_time)
-                    delay = min(delay * 2, 60.0)  # ，60
+                    delay = min(delay * 2, 60.0)  # 指数退避，最大60秒
                 else:
                     logger.error(f"Rate limit exceeded after {max_retries} retries: {e}")
                     raise
             except APIError as e:
                 last_exception = e
-                # 5xx
+                # 对5xx服务端错误也进行重试
                 if e.status_code and e.status_code >= 500 and attempt < max_retries:
                     logger.warning(
                         f"API server error {e.status_code} (attempt {attempt + 1}/{max_retries}), "
@@ -146,19 +127,19 @@ class LLMClient:
         response_format: Optional[Dict] = None
     ) -> str:
         """
-        
+        发送聊天请求
 
         Args:
-            messages: message list
-            temperature: temperature parameter
-            max_tokens: token
-            response_format: 
+            messages: 消息列表
+            temperature: 温度参数
+            max_tokens: 最大token数
+            response_format: 响应格式
 
         Returns:
-            LLM
+            LLM响应内容字符串
         """
         return self._call_with_retry(
-            messages=_enforce_english(messages),
+            messages=messages,
             temperature=temperature,
             max_tokens=max_tokens,
             response_format=response_format
@@ -171,23 +152,23 @@ class LLMClient:
         max_tokens: int = 4096
     ) -> Dict[str, Any]:
         """
-        JSON
+        发送聊天请求并返回JSON
 
         Args:
-            messages: message list
-            temperature: temperature parameter
-            max_tokens: token
+            messages: 消息列表
+            temperature: 温度参数
+            max_tokens: 最大token数
 
         Returns:
-            JSON
+            解析后的JSON对象
         """
         response = self._call_with_retry(
-            messages=_enforce_english(messages),
+            messages=messages,
             temperature=temperature,
             max_tokens=max_tokens,
             response_format={"type": "json_object"}
         )
-        # markdown
+        # 清理markdown代码块标记
         cleaned_response = response.strip()
         cleaned_response = re.sub(r'^```(?:json)?\s*\n?', '', cleaned_response, flags=re.IGNORECASE)
         cleaned_response = re.sub(r'\n?```\s*$', '', cleaned_response)
@@ -196,4 +177,4 @@ class LLMClient:
         try:
             return json.loads(cleaned_response)
         except json.JSONDecodeError:
-            raise ValueError(f"LLMJSON：{cleaned_response}")
+            raise ValueError(f"LLM返回的JSON格式无效：{cleaned_response}")
